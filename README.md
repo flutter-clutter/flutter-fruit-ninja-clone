@@ -6,4 +6,4 @@ A basic clone of the popular game Fruit Ninja
 
 # Article
 
-Find the respective tutorial about how everything was created on https://www.flutterclutter.dev
+Find the respective tutorial about how everything was created on https://www.flutterclutter.dev/flutter/tutorials/flutter-game-tutorial-fruit-ninja-clone/2020/951/
