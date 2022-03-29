@@ -2,7 +2,7 @@
 
 A basic clone of the popular game Fruit Ninja
 
-![https://www.flutterclutter.dev/wp-content/uploads/2020/07/flutter-fruit-ninja-final-result-small.gif](https://www.flutterclutter.dev/wp-content/uploads/2020/07/flutter-fruit-ninja-final-result-small.gif)
+![https://www.flutterclutter.dev/images/wp-content/uploads/2020/07/flutter-fruit-ninja-final-result-small.gif](https://www.flutterclutter.dev/wp-content/uploads/2020/07/flutter-fruit-ninja-final-result-small.gif)
 
 # Article
 
