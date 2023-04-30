@@ -15,10 +15,10 @@ class CanvasArea extends StatefulWidget {
 }
 
 class _CanvasAreaState<CanvasArea> extends State {
-  int score = 0;
-  TouchSlice touchSlice;
-  List<Fruit> fruits = List();
-  List<FruitPart> fruitParts = List();
+  int _score = 0;
+  TouchSlice? _touchSlice;
+  final List<Fruit> _fruits = <Fruit>[];
+  final List<FruitPart> _fruitParts = <FruitPart>[];
 
   @override
   void initState() {
@@ -28,21 +28,26 @@ class _CanvasAreaState<CanvasArea> extends State {
   }
 
   void _spawnRandomFruit() {
-    fruits.add(new Fruit(
-      position: Offset(0, 200),
-      width: 80,
-      height: 80,
-      additionalForce: Offset(5 + Random().nextDouble() * 5, Random().nextDouble() * -10),
-      rotation: Random().nextDouble() / 3 - 0.16
-    ));
+    _fruits.add(
+      Fruit(
+        position: Offset(0, 200),
+        width: 80,
+        height: 80,
+        additionalForce: Offset(
+          5 + Random().nextDouble() * 5,
+          Random().nextDouble() * -10,
+        ),
+        rotation: Random().nextDouble() / 3 - 0.16,
+      ),
+    );
   }
 
   void _tick() {
     setState(() {
-      for (Fruit fruit in fruits) {
+      for (Fruit fruit in _fruits) {
         fruit.applyGravity();
       }
-      for (FruitPart fruitPart in fruitParts) {
+      for (FruitPart fruitPart in _fruitParts) {
         fruitPart.applyGravity();
       }
 
@@ -51,18 +56,16 @@ class _CanvasAreaState<CanvasArea> extends State {
       }
     });
 
-    Future.delayed(Duration(milliseconds: 30), _tick);
+    Future<void>.delayed(Duration(milliseconds: 30), _tick);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: _getStack()
-    );
+    return Stack(children: _getStack());
   }
 
   List<Widget> _getStack() {
-    List<Widget> widgetsOnStack = List();
+    List<Widget> widgetsOnStack = <Widget>[];
 
     widgetsOnStack.add(_getBackground());
     widgetsOnStack.add(_getSlice());
@@ -74,12 +77,10 @@ class _CanvasAreaState<CanvasArea> extends State {
         right: 16,
         top: 16,
         child: Text(
-          'Score: $score',
-          style: TextStyle(
-            fontSize: 24
-          ),
-        )
-      )
+          'Score: $_score',
+          style: TextStyle(fontSize: 24),
+        ),
+      ),
     );
 
     return widgetsOnStack;
@@ -87,44 +88,41 @@ class _CanvasAreaState<CanvasArea> extends State {
 
   Container _getBackground() {
     return Container(
-      decoration: new BoxDecoration(
-        gradient: new RadialGradient(
-          stops: [0.2, 1.0],
-          colors: [
-            Color(0xffFFB75E),
-            Color(0xffED8F03)
-          ],
-        )
+      decoration: BoxDecoration(
+        gradient: RadialGradient(
+          stops: <double>[0.2, 1.0],
+          colors: <Color>[Color(0xffFFB75E), Color(0xffED8F03)],
+        ),
       ),
     );
   }
 
   Widget _getSlice() {
-    if (touchSlice == null) {
+    if (_touchSlice == null) {
       return Container();
     }
 
     return CustomPaint(
       size: Size.infinite,
       painter: SlicePainter(
-        pointsList: touchSlice.pointsList,
-      )
+        pointsList: _touchSlice!.pointsList,
+      ),
     );
   }
 
   List<Widget> _getFruits() {
-    List<Widget> list = new List();
+    List<Widget> list = <Widget>[];
 
-    for (Fruit fruit in fruits) {
+    for (Fruit fruit in _fruits) {
       list.add(
         Positioned(
           top: fruit.position.dy,
           left: fruit.position.dx,
           child: Transform.rotate(
             angle: fruit.rotation * pi * 2,
-            child: _getMelon(fruit)
-          )
-        )
+            child: _getMelon(fruit),
+          ),
+        ),
       );
     }
 
@@ -132,15 +130,15 @@ class _CanvasAreaState<CanvasArea> extends State {
   }
 
   List<Widget> _getFruitParts() {
-    List<Widget> list = new List();
+    List<Widget> list = <Widget>[];
 
-    for (FruitPart fruitPart in fruitParts) {
+    for (FruitPart fruitPart in _fruitParts) {
       list.add(
         Positioned(
           top: fruitPart.position.dy,
           left: fruitPart.position.dx,
-          child: _getMelonCut(fruitPart)
-        )
+          child: _getMelonCut(fruitPart),
+        ),
       );
     }
 
@@ -151,10 +149,12 @@ class _CanvasAreaState<CanvasArea> extends State {
     return Transform.rotate(
       angle: fruitPart.rotation * pi * 2,
       child: Image.asset(
-        fruitPart.isLeft ? 'assets/melon_cut.png': 'assets/melon_cut_right.png',
+        fruitPart.isLeft
+            ? 'assets/melon_cut.png'
+            : 'assets/melon_cut_right.png',
         height: 80,
-        fit: BoxFit.fitHeight
-      )
+        fit: BoxFit.fitHeight,
+      ),
     );
   }
 
@@ -162,42 +162,40 @@ class _CanvasAreaState<CanvasArea> extends State {
     return Image.asset(
       'assets/melon_uncut.png',
       height: 80,
-      fit: BoxFit.fitHeight
+      fit: BoxFit.fitHeight,
     );
   }
 
   Widget _getGestureDetector() {
     return GestureDetector(
-      onScaleStart: (details) {
-        setState(() {
-          _setNewSlice(details);
-        });
+      onScaleStart: (ScaleStartDetails details) {
+        setState(() => _setNewSlice(details));
       },
-      onScaleUpdate: (details) {
-        setState(() {
-          _addPointToSlice(details);
-          _checkCollision();
-        });
+      onScaleUpdate: (ScaleUpdateDetails details) {
+        setState(
+          () {
+            _addPointToSlice(details);
+            _checkCollision();
+          },
+        );
       },
-      onScaleEnd: (details) {
-        setState(() {
-          _resetSlice();
-        });
-      }
+      onScaleEnd: (ScaleEndDetails details) {
+        setState(() => _resetSlice());
+      },
     );
   }
 
   _checkCollision() {
-    if (touchSlice == null) {
+    if (_touchSlice == null) {
       return;
     }
 
-    for (Fruit fruit in List.from(fruits)) {
+    for (Fruit fruit in List<Fruit>.from(_fruits)) {
       bool firstPointOutside = false;
       bool secondPointInside = false;
 
-      for (Offset point in touchSlice.pointsList) {
-        if (!firstPointOutside&& !fruit.isPointInside(point)) {
+      for (Offset point in _touchSlice!.pointsList) {
+        if (!firstPointOutside && !fruit.isPointInside(point)) {
           firstPointOutside = true;
           continue;
         }
@@ -208,9 +206,9 @@ class _CanvasAreaState<CanvasArea> extends State {
         }
 
         if (secondPointInside && !fruit.isPointInside(point)) {
-          fruits.remove(fruit);
+          _fruits.remove(fruit);
           _turnFruitIntoParts(fruit);
-          score += 10;
+          _score += 10;
           break;
         }
       }
@@ -219,50 +217,60 @@ class _CanvasAreaState<CanvasArea> extends State {
 
   void _turnFruitIntoParts(Fruit hit) {
     FruitPart leftFruitPart = FruitPart(
-        position: Offset(
-          hit.position.dx - hit.width / 8,
-          hit.position.dy
-        ),
-        width: hit.width / 2,
-        height: hit.height,
-        isLeft: true,
-        gravitySpeed: hit.gravitySpeed,
-        additionalForce: Offset(hit.additionalForce.dx - 1, hit.additionalForce.dy -5),
-        rotation:  hit.rotation
+      position: Offset(
+        hit.position.dx - hit.width / 8,
+        hit.position.dy,
+      ),
+      width: hit.width / 2,
+      height: hit.height,
+      isLeft: true,
+      gravitySpeed: hit.gravitySpeed,
+      additionalForce: Offset(
+        hit.additionalForce.dx - 1,
+        hit.additionalForce.dy - 5,
+      ),
+      rotation: hit.rotation,
     );
 
     FruitPart rightFruitPart = FruitPart(
       position: Offset(
         hit.position.dx + hit.width / 4 + hit.width / 8,
-        hit.position.dy
+        hit.position.dy,
       ),
       width: hit.width / 2,
       height: hit.height,
       isLeft: false,
       gravitySpeed: hit.gravitySpeed,
-      additionalForce: Offset(hit.additionalForce.dx + 1, hit.additionalForce.dy -5),
-      rotation:  hit.rotation
+      additionalForce: Offset(
+        hit.additionalForce.dx + 1,
+        hit.additionalForce.dy - 5,
+      ),
+      rotation: hit.rotation,
     );
 
     setState(() {
-      fruitParts.add(leftFruitPart);
-      fruitParts.add(rightFruitPart);
-      fruits.remove(hit);
+      _fruitParts.add(leftFruitPart);
+      _fruitParts.add(rightFruitPart);
+      _fruits.remove(hit);
     });
   }
 
   void _resetSlice() {
-    touchSlice = null;
+    _touchSlice = null;
   }
 
   void _setNewSlice(details) {
-    touchSlice = TouchSlice(pointsList: [details.localFocalPoint]);
+    _touchSlice = TouchSlice(pointsList: <Offset>[details.localFocalPoint]);
   }
 
   void _addPointToSlice(ScaleUpdateDetails details) {
-    if (touchSlice.pointsList.length > 16) {
-      touchSlice.pointsList.removeAt(0);
+    if (_touchSlice?.pointsList == null || _touchSlice!.pointsList.isEmpty) {
+      return;
     }
-    touchSlice.pointsList.add(details.localFocalPoint);
+
+    if (_touchSlice!.pointsList.length > 16) {
+      _touchSlice!.pointsList.removeAt(0);
+    }
+    _touchSlice!.pointsList.add(details.localFocalPoint);
   }
 }

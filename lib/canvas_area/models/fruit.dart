@@ -4,16 +4,16 @@ import 'gravitational_object.dart';
 
 class Fruit extends GravitationalObject {
   Fruit({
-    position,
-    this.width,
-    this.height,
-    gravitySpeed = 0.0,
-    additionalForce = const Offset(0,0),
-    rotation = 0.25
-  }) : super(position: position, gravitySpeed: gravitySpeed, additionalForce: additionalForce, rotation: rotation);
+    required this.width,
+    required this.height,
+    required super.position,
+    super.gravitySpeed = 0.0,
+    super.additionalForce = const Offset(0, 0),
+    super.rotation = 0.25,
+  });
 
-  double width;
-  double height;
+  final double width;
+  final double height;
 
   bool isPointInside(Offset point) {
     if (point.dx < position.dx) {

@@ -1,8 +1,7 @@
 import 'dart:ui';
 
 class TouchSlice {
-  TouchSlice({
-    this.pointsList
-  });
-  List<Offset> pointsList;
+  TouchSlice({required this.pointsList});
+
+  final List<Offset> pointsList;
 }
